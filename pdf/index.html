@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="style/style.css">
+
+    <style type="text/css" media="print">
+        .noprint {
+            display: none
+        }
+        
+        .print {
+            display: block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="el-header noprint">
+            <div class="icon-btns">
+                <i class="icon-list" @click="changeLeftMenu"></i>
+                <i class="icon-skip_previous" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('first')"></i>
+                <i class="icon-play_arrow prev-icon" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('prev')"></i>
+                <i class="icon-play_arrow" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('next')"></i>
+                <i class="icon-skip_next" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('last')"></i>
+                <select v-model="currentPage">
+                    <option v-for="page in pageNum" v-bind:value="page">page {{ page }}</option>
+                </select>
+                <i class="icon-zoom_in" v-bind:class="{'disabled': zoomNum == 2}" @click="modifyZoom('in')"></i>
+                <select v-model="zoomNum">
+                    <option value="0.5">50%</option>
+                    <option value="0.6">60%</option>
+                    <option value="0.7">70%</option>
+                    <option value="0.8">80%</option>
+                    <option value="0.9">90%</option>
+                    <option value="1.0" selected>100%</option>
+                    <option value="1.1">110%</option>
+                    <option value="1.2">120%</option>
+                    <option value="1.3">130%</option>
+                    <option value="1.4">140%</option>
+                    <option value="1.5">150%</option>
+                    <option value="1.6">160%</option>
+                    <option value="1.7">170%</option>
+                    <option value="1.8">180%</option>
+                    <option value="1.9">190%</option>
+                    <option value="2.0">200%</option>
+                </select>
+                <i class="icon-zoom_out" v-bind:class="{'disabled': zoomNum == 0.5}" @click="modifyZoom('out')"></i>
+                <i class="icon-format_align_left" @click="textAlign = 'left'"></i>
+                <i class="icon-format_align_center" @click="textAlign = 'center'"></i>
+                <i class="icon-format_align_right" @click="textAlign = 'right'"></i>
+                <i class="icon-print" @click="window.print()"></i>
+            </div>
+        </header>
+
+        <aside class="noprint" width="240px" v-show="ifMenuShow">
+            <nav class="tabNav">
+                <ul>
+                    <li v-bind:class="{ 'curr': currentNav == 0 }" @click="currentNav = 0">Page</li>
+                    <li v-bind:class="{ 'curr': currentNav == 1 }" @click="currentNav = 1">Bookmark</li>
+                </ul>
+
+                <div class="clear"></div>
+            </nav>
+
+            <div class="tab-conent scrollbar" v-bind:style="{ height: asideHeight + 'px' }">
+
+            <section v-show="currentNav == 0">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-file-text2"></i> page {{ page }}</li>
+                </ul>
+            </section>
+
+            <section v-show="currentNav == 1">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-turned_in_not"></i> Bookmark {{ page }}</li>
+                </ul>
+            </section>
+        </div>
+
+        </aside>
+        <div class="main scrollbar noprint"  v-bind:style="{ height: mainHeight + 'px' }" v-bind:class="{ 'mainLeftM': ifMenuShow, 'aleft': textAlign === 'left','acenter': textAlign === 'center','aright': textAlign === 'right'}">
+            <div class="conent" v-html="pageContent" v-bind:style="zoomStyle"></div>
+
+            <div class="clear"></div>
+        </div>
+
+        <!--专门只为打印的内容-->
+        <div class="conent print" style="display:none" v-html="pageContent"></div>
+    </div>
+</body>
+<!-- 先引入 Vue -->
+<script src="js/vue.min.js"></script>
+<script>
+
+var app = new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                // visible: false,
+                isCollapse: false,
+                currentNav: 0,
+                activeName2: 'first',
+                pageNum: 1, 
+                currentPage: 1,
+                pageContent: '',
+                asideHeight: 300,
+                mainHeight: 300,
+                ifMenuShow: true,
+                zoomNum: '1.0',
+                textAlign: 'left',
+                zoomStyle: {},
+                pageDatas: ['<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="1056.000000" width="816.000000" src ="bgimg/bg00001.jpg"/></nobr></div><p><span style="font-family:Elephant;font-size:27.959999px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:44.136639px;left:131.231995px"><nobr>Como instalar wampserver </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:139.234695px;left:112.351990px"><nobr>1 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:152.986572px;left:164.986664px"><nobr>Lo primero que vamos a hacer es descargar WAMP, así que accede a la .. </nobr></span><span style="position:absolute;top:172.346603px;left:164.986664px"><nobr><span style="text-decoration:underline;color:#0563C1;"><a href="https://www.wampserver.com/en/" target="_blank">https://www.wampserver.com/en/ </a></span><span style="font-style:normal;font-weight:normal;color:#000000;">y haz clic en Download para ver las versiones de WAMP </span></nobr></span><span style="position:absolute;top:191.706619px;left:164.986664px"><nobr>disponibles. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:544.261353px;left:110.912003px"><nobr>2 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:573.053345px;left:173.946655px"><nobr>Ahora tendremos que seleccionar la versión de WAMP adecuada. Ya que una versión es </nobr></span><span style="position:absolute;top:592.413330px;left:173.946655px"><nobr>de 32 bits (x32) y otra de 64 bits (x64). Deberás descargarte una versión u otra </nobr></span><span style="position:absolute;top:611.773315px;left:173.946655px"><nobr>dependiendo de si tu sistema operativo es de 32 o de 64 bits. Si tu ordenador tiene </nobr></span><span style="position:absolute;top:631.133362px;left:173.946655px"><nobr>menos de 10 años, seguramente sea de 64 bits. </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:996.639954px;left:106.271996px"><nobr>3 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:906.213379px;left:165.946671px"><nobr>Ahora te tendrás que descargar el instalador. Cuando hagas clic en una de las versiones, verás </nobr></span><span style="position:absolute;top:925.407959px;left:165.946671px"><nobr>unas series de avisos indicando ciertas incompatibilidades con versiones anteriores de WAMP, </nobr></span><span style="position:absolute;top:944.768005px;left:165.946671px"><nobr>además de los requerimientos anteriores que ya hemos visto. Haz clic en <span style="color:#00B0F0;">download directly </span></nobr></span><span style="position:absolute;top:964.128052px;left:165.946671px"><nobr>para descargar el instalador de WAMP. Serás redirigido a <span style="color:#00B0F0;">SourceForge </span><span style="color:#000000;">y la descarga comenzará </span></nobr></span><span style="position:absolute;top:983.488037px;left:165.946671px"><nobr>automáticamente. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:896.301331px;left:105.951996px"><nobr>3 </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="1056.000000" width="816.000000" src ="bgimg/bg00002.jpg"/></nobr></div><p><span style="font-family:Calibri;font-size:12.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:321.306641px;left:117.951996px"><nobr>Serás redirigido a SourceForge y la descarga comenzará automáticamente. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.959999px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:572.372681px;left:76.000000px"><nobr>4 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:598.973389px;left:130.912003px"><nobr>Una vez te hayas descargado el instalador de WAMP debes ejecutarlo. Localiza el archivo </nobr></span><span style="position:absolute;top:618.333313px;left:130.912003px"><nobr>descargado en la carpeta de descargas de tu navegador, que seguramente sea la carpeta de </nobr></span><span style="position:absolute;top:637.693359px;left:130.912003px"><nobr>descargas de tu carpeta de usuario o el escritorio, y ejecútalo. Si se muestra un mensaje </nobr></span><span style="position:absolute;top:657.053345px;left:130.912003px"><nobr>indicando que debes proporcionar permisos de administrador para ejecutar el instalador, </nobr></span><span style="position:absolute;top:676.253357px;left:130.912003px"><nobr>acéptalo. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:848.141357px;left:78.560005px"><nobr>5 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:858.373352px;left:137.146667px"><nobr>Primero tendrás que seleccionar el idioma de WAMP. Si tu idioma no está en la lista (el español no lo está </nobr></span><span style="position:absolute;top:877.733276px;left:137.146667px"><nobr>por ahora), selecciona inglés o aquel con el que mejor te defiendas. Haz clic en OK para continuar. </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="1056.000000" width="816.000000" src ="bgimg/bg00003.jpg"/></nobr></div><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:78.727943px;left:91.071999px"><nobr>6 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:101.626625px;left:153.306671px"><nobr>Marca la casilla correspondiente <span style="color:#FF0000;">«I accept the agreement» </span><span style="color:#000000;">para aceptar el acuerdo de licencia de </span></nobr></span><span style="position:absolute;top:120.826660px;left:153.306671px"><nobr>WAMP. Continúa haciendo clic en Siguiente (Next) </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:518.154724px;left:87.231995px"><nobr>7 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:519.746643px;left:148.346649px"><nobr>Ahora verás un mensaje en el que se indican los requisitos de WAMP y aquellos componentes que </nobr></span><span style="position:absolute;top:539.106689px;left:148.346649px"><nobr>necesitas tener instalados en tu sistema para que WAMP funcione correctamente. Básicamente, </nobr></span><span style="position:absolute;top:558.493408px;left:148.346649px"><nobr>se especifican las versiones de Microsoft VC++ que debes tener instaladas. Si continuas con la </nobr></span><span style="position:absolute;top:577.693359px;left:148.346649px"><nobr>instalación sin instalar estos paquetes podrás finalizar el proceso, pero WAMP no funcionará, </nobr></span><span style="position:absolute;top:597.053345px;left:148.346649px"><nobr>puesto que se mostrará un mensaje indicando que faltan ciertos archivos en el sistema. Haz clic en </nobr></span><span style="position:absolute;top:616.413330px;left:148.346649px"><nobr>Siguiente (Next) para continuar. </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="1056.000000" width="816.000000" src ="bgimg/bg00004.jpg"/></nobr></div><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:101.314613px;left:82.399994px"><nobr>8 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:101.786621px;left:130.912003px"><nobr>Introduce el nombre del directorio en el que quieres instalar WAMP. En este caso hay una </nobr></span><span style="position:absolute;top:121.146645px;left:130.912003px"><nobr>particularidad que debes saber. Es más que recomendable instalar WAMP en una carpeta del </nobr></span><span style="position:absolute;top:140.506668px;left:130.912003px"><nobr>directorio raíz de tu disco duro. El nombre del directorio no debe contener espacios . Si </nobr></span><span style="position:absolute;top:159.866623px;left:130.912003px"><nobr>instalas WAMP en un subdirectorio, éste no debe ser el de Archivos de programa y, además, </nobr></span><span style="position:absolute;top:179.066574px;left:130.912003px"><nobr>ningún directorio de la ruta hasta el directorio de instalación de WAMP debe contener </nobr></span><span style="position:absolute;top:198.426590px;left:130.912003px"><nobr>espacios en su nombre. Clic en Siguiente (Next) para continuar. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:578.661377px;left:74.879997px"><nobr>9 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:587.773315px;left:135.866669px"><nobr>Seguidamente, introduce la carpeta del menú de inicio en la que quieres que se creen los accesos </nobr></span><span style="position:absolute;top:607.133362px;left:135.866669px"><nobr>directos a WAMP. Haz clic en Siguiente (Next) para continuar. </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="1056.000000" width="816.000000" src ="bgimg/bg00005.jpg"/></nobr></div><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:81.288002px;left:77.279999px"><nobr>10 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:82.879967px;left:129.471985px"><nobr>La instalación dará comienzo, pero durante el proceso tendrás que seleccionar el navegador que </nobr></span><span style="position:absolute;top:102.266602px;left:129.471985px"><nobr>quieres que WAMP use por defecto y el editor de texto con el que se abrirán los archivos de </nobr></span><span style="position:absolute;top:121.626625px;left:129.471985px"><nobr>configuración de WAMP cuando los selecciones. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:362.954681px;left:69.759995px"><nobr>12 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:383.426666px;left:132.031998px"><nobr>El editor de texto que se usará por defecto es el bloc de notas de Windows. Para que WAMP abra </nobr></span><span style="position:absolute;top:402.626678px;left:132.031998px"><nobr>los archivos de configuración con otro editor, tendrás que navegar hasta la ruta en la que se </nobr></span><span style="position:absolute;top:421.986664px;left:132.031998px"><nobr>encuentra el archivo ejecutable del editor y hacer clic en él. Si no sabes qué editor utilizar, una de </nobr></span><span style="position:absolute;top:441.346619px;left:132.031998px"><nobr>las mejores alternativas al bloc de notas para Windows es Notepad++. </nobr></span></span></p><p><span style="font-family:Broadway;font-size:18.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:798.061340px;left:76.000000px"><nobr>13 </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:821.093323px;left:144.506668px"><nobr>Cuando termine la instalación. verás un mensaje de confirmación. Haz clic en Finalizar (Finish ) para </nobr></span><span style="position:absolute;top:840.293274px;left:144.506668px"><nobr>cerrar el instalador. </nobr></span></span></p><p><span style="font-family:Calibri;font-size:11.040000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:870.373352px;left:144.506668px"><nobr>Y con esto, WAMP estará ya instalado en tu sistema. </nobr></span></span></p>']
+            }
+        },
+        mounted: function() {
+            this.$nextTick(function() {
+                this.pageNum = this.pageDatas.length;
+                this.pageContent = this.pageDatas[0];
+
+                this.setLeftMenuHeight();
+            })
+        },
+        watch: {
+            'currentPage': function(newVal, oldValue) {
+                // console.log('newVal ' + newVal, 'oldValue ' + oldValue);
+                if (newVal) {
+                    this.pageContent = this.pageDatas[this.currentPage - 1];
+                }
+            },
+            'zoomNum': function(newVal, oldValue) {
+                if (newVal) {
+                    this.zoomStyle = {
+                        'transform': 'scale(' + newVal + ')',
+                        '-webkit-transform': 'scale(' + newVal + ')',
+                        '-ms-transform': 'scale(' + newVal + ')',
+                        '-moz-transform': 'scale(' + newVal + ')',
+                        '-o-transform': 'scale(' + newVal + ')'
+                    }
+                }
+            }
+        },
+        methods: {
+            
+            changeCurrentPage: function(methods) {
+                switch (methods) {
+                    case 'first':
+                        this.currentPage = 1;
+                        break;
+                    case 'prev':
+                        if (this.currentPage > 1) {
+                            this.currentPage -= 1;
+                        }
+                        break;
+                    case 'next':
+                        if (this.currentPage < this.pageNum) {
+                            this.currentPage += 1;
+                        }
+                        break;
+                    case 'last':
+                        this.currentPage = this.pageNum;
+                        break;
+                }
+            },
+
+            gotoPage: function(page) {
+                console.log(page);
+                this.currentPage = page;
+            },
+            modifyZoom: function(type) {
+                switch (type) {
+                    case 'in':
+                        if (this.zoomNum < 2) {
+                            // this.zoomNum = (this.zoomNum + 0.1).toFixed(1);
+                            this.zoomNum = (parseFloat(this.zoomNum) + 0.1).toFixed(1);
+                        }
+                        break;
+                    case 'out':
+                        if (this.zoomNum > 0.5) {
+                            this.zoomNum = (parseFloat(this.zoomNum) - 0.1).toFixed(1);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                console.log(this.zoomNum);
+            },
+            setLeftMenuHeight: function() {
+                // this.asideHeight = document.body.scrollHeight - 60;
+                this.mainHeight = document.documentElement.clientHeight - 60 - 20;
+                // 60为头部导航高度， 46为menu高度， 40为上下padding
+                this.asideHeight = this.mainHeight - 20 - 46;
+            },
+            changePage: function(page) {
+                this.currentPage = page;
+                // this.pageContent = this.pageDatas[page - 1];
+            },
+            changeLeftMenu: function() {
+                this.ifMenuShow = !this.ifMenuShow;
+            }
+        }
+    });
+
+function gotoPage(page) {
+    console.log(page);
+    app.gotoPage(page);
+}
+
+</script>
+
+</html>
